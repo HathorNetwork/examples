@@ -27,6 +27,6 @@ Finally, set your Twitter bearer token to the `bearer_token` variable of the `ma
 with the `python main.py` command. 
 
 More details on how to get a Twitter bearer token from a developer account can be found
-in the [Twitter API Credentials](#) section of the [Twitter Bot Guide](#).
+in the Twitter API Credentials section of the Twitter Bot Guide.
 
 
