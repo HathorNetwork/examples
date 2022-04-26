@@ -17,6 +17,9 @@ wallet_id = 'twitter-wallet'
 wallet_seed_key = 'default'
 wallet_base_url = 'http://localhost:8000'
 
+# Full Node
+full_node_base_url = 'https://node1.testnet.hathor.network/v1a'
+
 
 class HathorRewardingPayer:
 
@@ -33,6 +36,15 @@ class HathorRewardingPayer:
         response = requests.post(url, data=data)
         print('Connection to Wallet Headless:')
         print(response.json())
+
+    def validate_address(self, address):
+
+        url = parse.urljoin(full_node_base_url, '/validate_address/' + address)
+
+        headers = {
+            'x-wallet-id': wallet_id
+        }
+        response = requests.get(url, headers=headers)
 
     def pay_tweet(self, address):
 
