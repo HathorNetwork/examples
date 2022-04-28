@@ -1,5 +1,6 @@
 import re
 import requests
+import json
 from tweepy import StreamingClient
 from tweepy import StreamRule
 from urllib import parse
@@ -16,6 +17,14 @@ htr_reward = 1
 wallet_id = 'twitter-wallet'
 wallet_seed_key = 'default'
 wallet_base_url = 'http://localhost:8000'
+wallet_data = {
+    'wallet-id': wallet_id,
+    'seedKey': wallet_seed_key
+}
+wallet_headers = {
+    'x-wallet-id': wallet_id
+}
+wallet_ready_status = 'Ready'
 
 # Full Node
 full_node_base_url = 'https://node1.testnet.hathor.network/v1a'
@@ -24,40 +33,39 @@ full_node_base_url = 'https://node1.testnet.hathor.network/v1a'
 class HathorRewardingPayer:
 
     def __init__(self):
-        self.start_wallet()
+        while not self.is_wallet_ready():
+            self.start_wallet()
+
+    def is_wallet_ready(self):
+        url = parse.urljoin(wallet_base_url, '/wallet/status')
+        response = requests.get(url, headers=wallet_headers).json()
+        response = str(response).replace("\'", "\"")
+        print(response)
+        response = {"success": False, "message": "Invalid wallet id parameter.", "statusMessage": ""}
+        response = json.dumps(response)
+        status = json.loads(response)["message"]
+        print(status)
+        return status == wallet_ready_status
 
     def start_wallet(self):
-        
         url = parse.urljoin(wallet_base_url, '/start')
-        data = {
-            'wallet-id': wallet_id,
-            'seedKey': wallet_seed_key
-        }
-        response = requests.post(url, data=data)
+        response = requests.post(url, data=wallet_data)
         print('Connection to Wallet Headless:')
         print(response.json())
 
-    def validate_address(self, address):
-
+    def is_valid_address(self, address):
         url = parse.urljoin(full_node_base_url, '/validate_address/' + address)
-
-        headers = {
-            'x-wallet-id': wallet_id
-        }
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=wallet_headers)
+        jsonResponse = json.loads(response.json())
+        return jsonResponse.get('valid')
 
     def pay_tweet(self, address):
-
         url = parse.urljoin(wallet_base_url, '/wallet/simple-send-tx')
-        headers = {
-            'x-wallet-id': wallet_id
-        }
         data = {
             'address': address,
             'value': htr_reward
         }
-
-        response = requests.post(url, json=data, headers=headers)
+        response = requests.post(url, json=data, headers=wallet_headers)
         print('Rewarding Transaction:')
         print(response.json())
 
