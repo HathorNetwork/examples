@@ -64,14 +64,19 @@ class HathorRewardingPayer:
         return self.response_to_json(response)["valid"]
 
     def pay_tweet(self, address):
-        url = parse.urljoin(wallet_base_url, '/wallet/simple-send-tx')
-        data = {
-            'address': address,
-            'value': htr_reward
-        }
-        response = requests.post(url, json=data, headers=wallet_headers)
-        print('Rewarding Transaction:')
-        print(response.json())
+
+        if self.is_valid_address(address):
+
+            url = parse.urljoin(wallet_base_url, '/wallet/simple-send-tx')
+            data = {
+                'address': address,
+                'value': htr_reward
+            }
+            response = requests.post(url, json=data, headers=wallet_headers)
+            print('Rewarding Transaction:')
+            print(response.json())
+        else:
+            print("Invalid Address! No reward will be paid.")
 
 
 class HathorStreamingClient(StreamingClient):
