@@ -81,11 +81,11 @@ class HathorRewardingPayer:
 
 class HathorStreamingClient(StreamingClient):
 
-    def __init__(self, twitter_token):
+    def __init__(self, twitter_token, full_node=full_node_testnet_url):
         super(HathorStreamingClient, self).__init__(twitter_token)
         for hashtag in hashtags:
             self.add_rules(StreamRule(hashtag))
-        self.payer = HathorRewardingPayer()
+        self.payer = HathorRewardingPayer(full_node)
 
     def on_connect(self):
         print('Connection to Twitter has been established!')
